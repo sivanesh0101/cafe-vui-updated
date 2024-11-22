@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Orders</title>
+    <link rel="stylesheet" href="/static/css/kitchen.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cafeteria Kitchen</h1>
+        </header>
+        <main>
+            <h2>Order Details</h2>
+            <div class="button-container">
+                <button onclick="loadOrders('placed')">Placed</button>
+                <button onclick="loadOrders('picked')">Picked</button>
+                <button onclick="loadOrders('delivered')">Delivered</button>
+            </div>
+            <div id="order-details">
+                <!-- Orders will be loaded here -->
+            </div>
+        </main>
+    </div>
+    <script src="/static/js/kitchen.js"></script>
+</body>
+</html>

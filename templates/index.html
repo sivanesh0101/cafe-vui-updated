@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
+        </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Nosifer&display=swap');
+        </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.25, minimum-scale=0.5">
+    <title>CafeteriaWebApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+</head>
+<body>
+    <div class="topbar">
+        <header>
+            <h1>kovai kulambi</h1>
+        </header>
+    </div>    
+        <div class="container">
+        <main>
+            <section class="menu">
+                <h2>Hot Coffee</h2>
+                <div class="items">
+                    <div class="item" onclick="addToOrder('Cappuccino', 1, 50)">
+                        <img src="/static/pics/cappcinno.jpg" alt="">
+                        <p class="item-name">Cappuccino</p>
+                        <p class="item-price">&#8377; 50</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Flat White', 1, 40)">
+                        <img src="/static/pics/flat_white.jpg" alt="">
+                        <p class="item-name">Flat White</p>
+                        <p class="item-price">&#8377; 40</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Espresso', 1, 60)">
+                        <img src="/static/pics/espresso-day.png" alt="">
+                        <p class="item-name">Espresso</p>
+                        <p class="item-price">&#8377; 60</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Filter Coffee', 1, 70)">
+                        <img src="/static/pics/filtercoffee.webp" alt="">
+                        <p class="item-name">Filter Coffee</p>
+                        <p class="item-price">&#8377; 70</p>
+                    </div>
+                </div>
+
+                <h2>Cold Coffee</h2>
+                <div class="items">
+                    <div class="item" onclick="addToOrder('Cold Coffee', 1, 120)">
+                        <img src="/static/pics/Cold-Coffee.jpg" alt="">
+                        <p class="item-name">Cold Coffee</p>
+                        <p class="item-price">&#8377; 120</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Cold Mocha', 1, 150)">
+                        <img src="/static/pics/coldmocha.jpg" alt="">
+                        <p class="item-name">Cold Mocha</p>
+                        <p class="item-price">&#8377; 150</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Belgian Chocolate', 1, 180)">
+                        <img src="/static/pics/begian.jpg" alt="">
+                        <p class="item-name">Belgian Chocolate</p>
+                        <p class="item-price">&#8377; 180</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Chocolate Shake', 1, 200)">
+                        <img src="/static/pics/cholotate shakee.jpg" alt="">
+                        <p class="item-name">Chocolate Shake</p>
+                        <p class="item-price">&#8377; 200</p>
+                    </div>
+                </div>
+
+                <h2>Snacks</h2>
+                <div class="items">
+                    <div class="item" onclick="addToOrder('Sandwich', 1, 70)">
+                        <img src="/static/pics/sandwitch.jpg" alt="">
+                        <p class="item-name">Sandwich</p>
+                        <p class="item-price">&#8377; 70</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Garlic Bread', 1, 60)">
+                        <img src="/static/pics/garlicBread.avif" alt="">
+                        <p class="item-name">Garlic Bread</p>
+                        <p class="item-price">&#8377; 60</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Veg Burger', 1, 120)">
+                        <img src="/static/pics/vegBurger.jpg" alt="">
+                        <p class="item-name">Veg Burger</p>
+                        <p class="item-price">&#8377; 120</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Veg Pizza', 1, 150)">
+                        <img src="/static/pics/vegPizza.jpg" alt="">
+                        <p class="item-name">Veg Pizza</p>
+                        <p class="item-price">&#8377; 150</p>
+                    </div>
+                </div>
+
+                <h2>Dessert</h2>
+                <div class="items">
+                    <div class="item" onclick="addToOrder('Cheescake', 1, 165)">
+                        <img src="/static/pics/cheescake.jpg" alt="">
+                        <p class="item-name">Cheescake</p>
+                        <p class="item-price">&#8377; 165</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Vanilla Scoop', 1, 165)">
+                        <img src="/static/pics/venilaScoop.jpg" alt="">
+                        <p class="item-name">Vanilla Scoop</p>
+                        <p class="item-price">&#8377; 165</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Strawberry Cake', 1, 165)">
+                        <img src="/static/pics/STRAWBERRY-CAKE-S-01.jpg" alt="">
+                        <p class="item-name">Strawberry Cake</p>
+                        <p class="item-price">&#8377; 165</p>
+                    </div>
+                    <div class="item" onclick="addToOrder('Red Velvet Cake', 1, 415)">
+                        <img src="/static/pics/redvelvet cake.webp" alt="">
+                        <p class="item-name">Red Velvet Cake</p>
+                        <p class="item-price">&#8377; 415</p>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="order-section">
+                <h2>Your Orders</h2>
+                <div class="order-summary">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty.</th>
+                                <th>Price</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody id="order-items">
+                            <!-- Orders will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="qrCodeContainer" id="qrCodeContainer">
+                    
+                </div>
+                <div class="chatbox">
+                    <div class="chat" id="chat">
+                        <!-- Chat messages will be dynamically added here -->
+                    </div>
+                    <div class="chat-input">
+                        <button class="mic" id="activate-voice-assistant" onclick="startVoiceRecognition()">
+                            <img src="/static/pics/mic copy.png" alt="mic icon">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/static/js/script.js"></script>
+        <script src="http://127.0.0.1:5000/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            socket.on('message', function(message) {
+                console.log(message);
+            });
+        </script>
+    </body>
+</html>

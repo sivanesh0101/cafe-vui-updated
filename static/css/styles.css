@@ -1,0 +1,351 @@
+body {
+    /*font-family: Arial, sans-serif;*/
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff; /* Keep your existing background color */
+    font-size: 16px;
+}
+
+.topbar {
+    position: fixed;              
+    top: 0;                     
+    left: 0;                    
+    width: 100%;                
+    background-color: #da9979;               
+    padding: 11px;              
+    z-index: 1000;              
+}
+
+.container {
+    display: flex;
+    justify-content: space-between; /* Align items horizontally */
+    width: 100%;
+    max-width: 1200px; /* Optional max-width for layout */
+    margin: 0 auto; /* Center the container */
+    padding: 20px;
+    margin-top: 60px; /* Adjust based on topbar height */
+}
+
+header {
+    text-align: center;
+}
+
+header h1 {
+    margin: auto;
+    font-size: 25px !important;
+    color: #4d2e1c;
+    /*font-family: 'Mr Dafoe'; /* Use the desired font */
+}
+
+main {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.menu {
+    flex: 1;
+    max-width: 70%; /* Set max width for responsive layout */
+    margin-right: 20px; /* Space between menu and order section */
+    max-height: calc(100vh - 120px); /* Adjust to fit within viewport */
+    overflow-y: auto;
+}
+
+.menu p{
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    font-family: "Josefin Sans", sans-serif;
+    font-size: 1.8rem;
+    color: #4a3b3b;
+    margin-bottom: 10px;
+    /*font-family: 'Mr Dafoe';*/
+}
+
+.items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.item {
+    width: calc(25% - 20px);
+    margin: 10px;
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+.item-name {
+    margin: 5px 0;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.item .item-price {
+    font-size: 1rem;
+    color: #555;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+.item:hover {
+    transform: scale(1.05);
+}
+
+label {
+    font-size: 1rem;
+    margin: 10px 0 5px;
+}
+
+input, textarea {
+    padding: 10px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #000000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #5d4037;
+}
+
+h3 {
+    color: #000000;
+    font-size: 30px;
+}
+
+/* Voice Assistant Button */
+.mr-dafoe-regular {
+    font-family: "Mr Dafoe", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Chatbox styles */
+.chatbox {
+    border: 1px solid #ddd; /* Added border */
+    padding: 10px;
+    background-color: #f9f9f9; /* Light background */
+    max-height: 600px; /* Increase max height */
+    overflow-y: auto; /* Allow scrolling */
+    border-radius: 10px; /* Added rounded corners */
+    
+}
+.qrCodeContainer {
+    display: flex;                /* Enable flexbox */
+    justify-content: center;      /* Center horizontally */
+    align-items: center;          /* Center vertically */            /* Space above the container */
+    padding: 10px;               /* Space inside the container */
+    border-radius: 8px;          /* Rounded corners */
+}
+
+
+.chat {
+    max-height: 300px; /* Increased height */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column; /* Stack messages vertically */
+    margin-bottom: 10px;
+}
+
+.chat div.user {
+    align-self: flex-end;
+    background-color: #dfefff; /* Light blue background */
+    text-align: right;
+    max-width: fit-content; /* Rounded corners */
+}
+
+.chat div.app {
+    align-self: flex-start;
+    background-color: #ffe4e1; /* Light pink background */
+    text-align: left;
+    max-width: fit-content; /* Rounded corners */
+}
+
+.chat div {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 80%;  /* Chat bubbles will not be more than 80% of the width */
+    word-wrap: break-word; /* Wrap long words */
+    font-size: 16px;
+    display: inline-block;
+}
+
+.chat-input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    display: flex; /* Flexbox for alignment */
+    justify-content: flex-end; /* Align content to the right */
+    align-items: center; /* Center content vertically */
+}
+
+.chat-input button {
+    background-color: #f4d661; /* Normal mic button color */
+    border: none;
+    border-radius: 50%; /* Circular button */
+    width: 60px; /* Set button width */
+    height: 60px; /* Set button height */
+    position: fixed; /* Fix position on the page */
+    bottom: 30px; /* Distance from the bottom */
+    right: 30px; /* Distance from the right */
+    display: flex; /* Flexbox to center the image */
+    justify-content: center; /* Center image horizontally */
+    align-items: center; /* Center image vertically */
+    cursor: pointer; /* Pointer cursor */
+    z-index: 1000; /* Ensure it's on top of other content */
+}
+
+.chat-input button img {
+    width: 45px; /* Adjust image size */
+    height: 50px; /* Adjust image size */
+}
+
+.chat-input button.active,
+.chat-input button:hover {
+    background-color: #705711;
+    filter: brightness(1.2); /* Apply brightness once */
+}
+
+
+.chat-input button.active img {
+    filter: brightness(1.2); /* Slightly brighten the mic icon on hover */
+}
+
+.chat-input button img:hover {
+    filter: brightness(1.2); /* Slightly brighten the mic icon on hover */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .menu, .checkout {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+
+    .item {
+        width: calc(50% - 20px); /* Two items per row */
+    }
+}
+
+@media (max-width: 480px) {
+    .item {
+        width: calc(100% - 20px); /* One item per row */
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    button {
+        font-size: 0.9rem;
+    }
+}
+
+/* Import the font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
+/* Apply the font to the header */
+header h1 {
+    font-family: "Nosifer", sans-serif;
+    font-size: 50px; /* Keep the original header size */
+}
+
+.order-section {
+    width: 30%; /* Fixed width or percentage width to fit next to .menu */
+    background-color: #f5e3e3;
+    padding: 15px;
+    border-radius: 10px;
+    max-height: calc(100vh - 120px); /* Limit the height to fit within viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
+    position: sticky; /* Stick within the viewport while scrolling */
+    top: 80px; /* Adjust top position as needed */
+    
+}
+
+
+.order-section h2 {
+    font-family: "Josefin Sans", sans-serif;   
+    color: #000000;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.order-summary table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+.order-summary th {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    font-family:Georgia, 'Times New Roman', Times, serif;
+}
+.order-summary td{
+    padding: 5px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.order-section::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+}
+.order-section::-webkit-scrollbar-track {
+    background: #f0f0f0; /* Color of the scrollbar track */
+    border-radius: 10px; /* Optional: rounded edges */
+}
+.order-section::-webkit-scrollbar-thumb {
+    background-color: #da9979; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded edges for a smoother look */
+    border: 2px solid #f0f0f0; /* Optional: adds space around the thumb */
+}
+
+
+.menu::-webkit-scrollbar {
+    width: 4px; /* Width of the scrollbar */
+}
+.menu::-webkit-scrollbar-track {
+    background: #ffffff; /* Color of the scrollbar track */
+    border-radius: 10px; /* Optional: rounded edges */
+}
+.menu::-webkit-scrollbar-thumb {
+    background-color: #da9979; /* Color of the scrollbar thumb */
+    border-radius: 15px; /* Rounded edges for a smoother look */
+
+     
+}
