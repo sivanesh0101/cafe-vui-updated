@@ -1,3 +1,6 @@
+/* Import the font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
 body {
     /*font-family: Arial, sans-serif;*/
     margin: 0;
@@ -152,12 +155,20 @@ h3 {
 /* Chatbox styles */
 .chatbox {
     border: 1px solid #ddd; /* Added border */
-    padding: 10px;
+    padding: 1px;
     background-color: #f9f9f9; /* Light background */
     max-height: 600px; /* Increase max height */
     overflow-y: auto; /* Allow scrolling */
     border-radius: 10px; /* Added rounded corners */
     
+}
+.totalPrice{
+    display: flex;                /* Enable flexbox */
+    justify-content: center;      /* Center horizontally */
+    align-items: center;          /* Center vertically */            /* Space above the container */
+    padding: 2px;               /* Space inside the container */
+    border-radius: 8px;
+    font-weight: bold; 
 }
 .qrCodeContainer {
     display: flex;                /* Enable flexbox */
@@ -276,9 +287,7 @@ h3 {
     }
 }
 
-/* Import the font from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
+
 /* Apply the font to the header */
 header h1 {
     font-family: "Nosifer", sans-serif;

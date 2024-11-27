@@ -41,3 +41,29 @@ def place_order():
         return jsonify({"error": str(e)}), 500
     finally:
         db.close()
+
+# New endpoint for canceling an order
+@index_bp.route('/cancel_order', methods=['POST'])
+def cancel_order():
+    data = request.json
+    order_id = data.get('order_id')
+    if not order_id:
+        return jsonify({"error": "Order ID is required"}), 400
+
+    db = get_db_connection()
+    cursor = db.cursor()
+
+    try:
+        # Delete order items first due to foreign key constraints
+        cursor.execute("DELETE FROM OrderItems WHERE OrderID = %s", (order_id,))
+        # Then delete the order itself
+        cursor.execute("DELETE FROM Orders WHERE OrderID = %s", (order_id,))
+        db.commit()
+
+        return jsonify({"message": f"Order with ID {order_id} has been canceled successfully!"})
+
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()

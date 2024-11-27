@@ -2,19 +2,8 @@
 const micButton = document.getElementById('activate-voice-assistant');
 const voices = [];
 
-// Define the numberMap variable
-const numberMap = {
-    "one": 1,
-    "two": 2,
-    "three": 3,
-    "four": 4,
-    "five": 5,
-    "six": 6,
-    "seven": 7,
-    "eight": 8,
-    "nine": 9,
-    "ten": 10
-};
+
+
 
 // Load available voices
 window.speechSynthesis.onvoiceschanged = function() {
@@ -39,37 +28,61 @@ function speakText(text, rate = 1.2) {  // Default rate set to 1
 }
 
 // Function to start voice recognition
+let recognition; // Declare the recognition variable globally
+let isRecognitionActive = false; // Track whether recognition is active
+
 function startVoiceRecognition() {
-    micButton.classList.add('active'); // Add 'active' class to mic button to change its color
+    if (!recognition) {
+        // Initialize recognition if not already initialized
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-IN'; // Set language to English (India)
+        recognition.interimResults = false;
+        recognition.continuous = false; // Stop continuous recognition to reduce noise pickup
 
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-IN';  // Set language to English (India)
-    recognition.interimResults = false;
-    recognition.continuous = false;  // Stop continuous recognition to reduce noise pickup
+        // When voice recognition produces a result
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript.toLowerCase();
+            processOrder(transcript);
+            stopVoiceRecognition(); // Stop recognition after processing
+        };
 
-    // When voice recognition produces a result
-    recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        processOrder(transcript);
-        micButton.classList.remove('active'); // Remove 'active' class after voice recognition finishes
-    };
+        // Handle errors (e.g., if user cancels voice recognition)
+        recognition.onerror = function(event) {
+            console.error('Voice recognition error:', event.error);
+            stopVoiceRecognition(); // Stop recognition on error
+        };
 
-    // Handle errors (e.g., if user cancels voice recognition)
-    recognition.onerror = function(event) {
-        console.error('Voice recognition error:', event.error);
-        micButton.classList.remove('active'); // Remove 'active' class if there is an error
-    };
+        recognition.onend = function() {
+            stopVoiceRecognition(); // Ensure cleanup when recognition ends
+        };
+    }
 
-    recognition.onend = function() {
-        micButton.classList.remove('active'); // Remove 'active' class when voice recognition ends
-    };
+    if (isRecognitionActive) {
+        // If recognition is already active, stop it
+        stopVoiceRecognition();
+    } else {
+        // If recognition is not active, start it
+        micButton.classList.add('active'); // Add 'active' class to mic button to change its color
+        recognition.start();
+        isRecognitionActive = true; // Update the state
+    }
+}
 
-    // Start the speech recognition process 
-    recognition.start();
+function stopVoiceRecognition() {
+    if (recognition) {
+        recognition.stop(); // Stop recognition if it's active
+    }
+    micButton.classList.remove('active'); // Remove 'active' class
+    isRecognitionActive = false; // Update the state
 }
 
 // Update chat with messages
 function updateChat(sender, message) {
+    // If the sender is the user, replace "for" with "four"
+    if (sender === 'user') {
+        message = message.replace(/\bfor\b/g, 'four');
+    }
+
     const chatMessage = document.createElement('div');
     chatMessage.classList.add(sender);
     chatMessage.innerText = message;
@@ -82,6 +95,7 @@ function updateChat(sender, message) {
         speakText(message);
     }
 }
+
 
 // Process the voice command for ordering and removing items
 function processOrder(transcript) {
@@ -104,71 +118,102 @@ function processOrder(transcript) {
         "strawberry cake": 165 
     };
 
-    let matchedItem = null;
-    let quantity = 1; // Default to 1
+    const numberMap = {
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10
+    };
 
     // Print user's voice input
     updateChat('user', transcript);
 
-    // Check if the transcript contains an item for ordering
-    for (const item in items) {
-        if (transcript.includes(item)) {
-            matchedItem = item;
-            break;
-        }
-    }
-
-    // Check for quantity in transcript (supports both numeric and word-based quantities)
-    const qtyMatch = transcript.match(/(\d+|one|two|three|four|five|six|seven|eight|nine|ten)/i);
-    if (qtyMatch) {
-        const quantityStr = qtyMatch[0].toLowerCase();
-        quantity = isNaN(quantityStr) ? numberMap[quantityStr] : parseInt(quantityStr); // Convert to number
-    }
+    // Parse transcript for multiple orders
+    const orderRegex = new RegExp(`(\\b(?:${Object.keys(numberMap).join('|')}|\\d+)\\b)?\\s*(\\b${Object.keys(items).join('\\b|\\b')}\\b)`, 'gi');
+    const orders = [...transcript.matchAll(orderRegex)];
 
     // Greetings
     const greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"];
-    if (greetings.some(greet => transcript.includes(greet))) {
-        updateChat('app', "Hello, Order something you like!");
-        return; // Exit the function after greeting response
+    if (greetings.some(greet => transcript.toLowerCase().includes(greet))) {
+        updateChat('app', "Hello! Order something you like.");
+        return;
     }
 
-    // Check if user finalizes the order
-    if (transcript.includes("finalize") || 
-    transcript.includes("final") || 
-    transcript.includes("enough") || 
-    transcript.includes("that's all") || 
-    transcript.includes("finish the order") || 
-    transcript.includes("confirm the order") || 
-    transcript.includes("wrap it up") || 
-    transcript.includes("that's it")) {
-
-        // Check if there are items in the order list before finalizing
-        if (document.querySelectorAll('#order-items tr').length === 0) {
-            updateChat('app', "Please order something before finalizing.");
-        } else {
-            finalizeOrder();
-            micButton.classList.remove('active');  // Stop mic after finalizing the order
-        }
-
+    // Finalize order
+    if (
+        transcript.toLowerCase().includes("finalize") || 
+        transcript.toLowerCase().includes("final") || 
+        transcript.toLowerCase().includes("enough") || 
+        transcript.toLowerCase().includes("that's all") || 
+        transcript.toLowerCase().includes("finish the order") || 
+        transcript.toLowerCase().includes("confirm the order") || 
+        transcript.toLowerCase().includes("wrap it up") || 
+        transcript.toLowerCase().includes("that's it")
+    ) {
+        finalizeOrder();
         return;
-    }  
-    // Check if user wants to remove items
-    if (transcript.includes("remove")) {
-        const removeMatch = transcript.match(/remove (\d+|one|two|three|four|five|six|seven|eight|nine|ten)?\s*(.*)/);
+    }
+
+    // Handle order cancellation
+    if (
+        transcript.toLowerCase().includes("cancel the order") ||
+        transcript.toLowerCase().includes("cancel order") ||
+        transcript.toLowerCase().includes("remove all items") ||
+        transcript.toLowerCase().includes("clear the order") ||
+        transcript.toLowerCase().includes("discard the order")
+    ) {
+        clearOrder();
+        updateChat('app', "All items have been removed from your order.");
+        
+        // Refresh the page after clearing the order
+        setTimeout(() => {
+            window.location.reload();  // This will reload the page after clearing the order
+        }, 500); // Adding a delay before refresh to ensure the order is cleared first
+        return;
+    }
+
+    // Remove items
+    if (transcript.toLowerCase().includes("remove")) {
+        const removeMatch = transcript.match(/remove (\d+|one|two|three|four|five|six|seven|eight|nine|ten)?\s*(.*)/i);
         if (removeMatch) {
-            const removeQtyStr = removeMatch[1] ? removeMatch[1].toLowerCase() : 'one';
+            const removeQtyStr = removeMatch[1] ? removeMatch[1].toLowerCase() : "one";
             const removeItem = removeMatch[2].toLowerCase();
             const removeQuantity = isNaN(removeQtyStr) ? numberMap[removeQtyStr] : parseInt(removeQtyStr);
 
             removeItemFromOrder(removeItem, removeQuantity);
+        } else {
+            updateChat('app', "Please specify the item and quantity to remove.");
         }
         return;
     }
 
-    if (matchedItem) {
-        addToOrder(matchedItem, quantity, items[matchedItem]);
-        updateChat('app', `${quantity} ${matchedItem}${quantity > 1 ? 's' : ''} added to your order.`);
-        
+    // Handle orders
+    if (orders.length > 0) {
+        orders.forEach(order => {
+            let quantityStr = order[1] ? order[1].toLowerCase() : "one";
+            const item = order[2].toLowerCase();
+
+            // Normalize quantity
+            if (quantityStr === "for") quantityStr = "four";
+            if (quantityStr === "on") quantityStr = "one";
+            if (quantityStr === "to") quantityStr = "two";
+            const quantity = isNaN(quantityStr) ? numberMap[quantityStr] : parseInt(quantity);
+
+            if (items[item]) {
+                addToOrder(item, quantity, items[item]);
+                updateChat('app', `${quantity} ${item}${quantity > 1 ? 's' : ''} added to your order.`);
+            } else {
+                updateChat('app', `Sorry, ${item} is not available.`);
+            }
+        });
+
+        // Prompt for additional orders
         const additionalPrompts = [
             "Anything else?",
             "Anything more you'd like?",
@@ -176,13 +221,65 @@ function processOrder(transcript) {
             "Shall I add something else to your order?",
             "Would you like something more with that?"
         ];
-        
         const randomPrompt = additionalPrompts[Math.floor(Math.random() * additionalPrompts.length)];
         updateChat('app', randomPrompt);
     } else {
         updateChat('app', "Oops, it's not available.");
     }
 }
+
+// Function to clear all items from the order
+// Track if the order is finalized
+let isOrderFinalized = false; // Default state, change when the order is finalized
+
+function clearOrder(orderId) {
+    if (isOrderFinalized) {
+        // If the order is finalized, call the backend route to cancel it
+        if (!orderId) {
+            updateChat('app', "Order ID is required to clear the finalized order.");
+            return;
+        }
+
+        fetch('http://127.0.0.1:5000/cancel_order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ order_id: orderId }) // Send the order ID in the request body
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network error: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                updateChat('app', `Error clearing finalized order: ${data.error}`);
+            } else {
+                updateChat('app', data.message); // Display success message
+                // Clear the order items in the UI
+                const orderItems = document.getElementById('order-items');
+                orderItems.innerHTML = ''; // Clear all rows from the order table
+                updateChat('app', "Your finalized order has been canceled successfully.");
+                isOrderFinalized = false; // Reset the finalized state
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            updateChat('app', "An error occurred while clearing the finalized order. Please try again.");
+        });
+    } else {
+        // If the order is not finalized, just clear the UI
+        const orderItems = document.getElementById('order-items');
+        orderItems.innerHTML = ''; // Clear all rows from the order table
+        updateChat('app', "Your order has been cleared.");
+    }
+}
+
+
+
+
 function removeItemFromOrderClick(iconElement) {
     const row = iconElement.closest('tr');  // Ensure it targets the parent row
     if (!row) {
@@ -266,6 +363,12 @@ function finalizeOrder() {
         totalAmount += price; // Sum up the total amount
     });
 
+    // Check if total amount is 0
+    if (totalAmount === 0) {
+        updateChat('app', "Please Order something!");
+        return; // Stop execution if no items have been ordered
+    }
+
     fetch('http://127.0.0.1:5000/place_order', {
         method: 'POST',
         headers: { 
@@ -293,22 +396,34 @@ function finalizeOrder() {
     });
 }
 
+
 // Display total amount without generating QR code
 function displayTotalAmount(total) {
+    const totalPriceContainer = document.getElementById('totalPrice');
+    
+    // Clear previous total amount
+    totalPriceContainer.innerHTML = ""; 
+
+    // Create and append the new total amount
     const totalMessage = document.createElement('div');
-    totalMessage.classList.add('app');
-    totalMessage.innerText = `Total Amount: ₹${total}`;
-    document.getElementById('chat').appendChild(totalMessage);
+    totalMessage.innerText = `₹${total}`;
+    totalPriceContainer.appendChild(totalMessage);
 
     // Speak the total amount
-    speakText(`Your Orders on the way...`)
+    speakText(`Your Orders on the way...`);
     
+    // Generate the QR code for the total amount
     generateQRCode(total);
 }
 
+function cancelOrder() {
+    const totalPriceContainer = document.getElementById('cancelOrder');
+}
+
+
 function generateQRCode(total) {
-    const upiID = "9025370065@ybl";  // Replace with your UPI ID
-    const payeeName = "KOVAI KULAMBI";  // Replace with the payee name
+    const upiID = "9025370065@ybl"; // Replace with your UPI ID
+    const payeeName = "KOVAI KULAMBI"; // Replace with the payee name
     const upiLink = `upi://pay?pa=${upiID}&pn=${payeeName}&mc=1234&tid=transactionId&am=${total}&cu=INR&url=https://your-merchant-website.com`; // Transaction details
 
     // Clear previous QR code
@@ -321,7 +436,16 @@ function generateQRCode(total) {
 
     // Generate new QR code on the canvas
     QRCode.toCanvas(canvas, upiLink, function (error) {
-        if (error) console.error(error);
-        console.log("QR Code generated!");
+        if (error) {
+            console.error(error);
+        } else {
+            console.log("QR Code generated!");
+
+            // Scroll the order section into view
+            const orderSection = document.getElementById("order-section"); // Replace with your section's ID
+            if (orderSection) {
+                orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
     });
 }
