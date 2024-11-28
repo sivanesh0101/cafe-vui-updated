@@ -5,14 +5,6 @@ body {
     background-color: #f4f4f4;
 }
 
-.container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
 
 header {
     text-align: center;
@@ -40,13 +32,23 @@ button {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    margin-left: 20px;
+}
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #127d2b;
 }
 
 .order {
+    position: relative;
     border: 1px solid #ddd;
     padding: 10px;
     margin-bottom: 10px;
@@ -71,4 +73,16 @@ hr {
     border: 0;
     border-top: 1px solid #eee;
     margin: 10px 0;
+}
+
+.clickButton {
+    position: absolute; /* Position the button absolutely within the order */
+    top: 10px;  /* Distance from the top of the .order element */
+    right: 10px;  /* Distance from the right of the .order element */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    padding: 10px 15px; /* Adjust the padding as needed */
 }

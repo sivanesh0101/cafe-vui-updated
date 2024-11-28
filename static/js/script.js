@@ -3,16 +3,49 @@ const micButton = document.getElementById('activate-voice-assistant');
 const voices = [];
 
 
+const welcomeMessages = [
+    "Welcome to our cafeteria! How can I assist you today?",
+    "Hello there! Ready to place your order?",
+    "Hi! Check out our delicious menu items!",
+    "Welcome back! What's your craving today?",
+    "Greetings! Let's get started with your order."
+  ];
 
-
-// Load available voices
-window.speechSynthesis.onvoiceschanged = function() {
+  
+  // Load available voices
+  window.speechSynthesis.onvoiceschanged = function () {
     voices.length = 0; // Clear existing voices
     voices.push(...window.speechSynthesis.getVoices()); // Load available voices
-};
+  
+    // Play a random welcome message after voices are loaded
+    const randomMessage = getRandomMessage();
+    speakMessage(randomMessage);
+  };
+  
+  
+  // Function to speak a message using Zira voice
+  function speakMessage(message, rate = 1.2) {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.lang = 'en-IN'; // Set language to Indian English
+      utterance.rate = rate; // Set speech rate
+  
+      // Look for "Microsoft Zira" voice
+      const ziraVoice = voices.find(voice => voice.name.toLowerCase().includes("zira"));
+      if (ziraVoice) {
+        utterance.voice = ziraVoice; // Use Zira voice
+      }
+  
+      // Speak the message
+      window.speechSynthesis.speak(utterance);
+    } else {
+      console.log("Speech synthesis not supported in this browser.");
+    }
+  }
+  
 
 // Function to convert text to speech
-function speakText(text, rate = 1.2) {  // Default rate set to 1
+function speakText(text, rate = 1.3) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-IN'; // Use Indian English
     utterance.rate = rate; // Set the speech rate
@@ -41,7 +74,13 @@ function startVoiceRecognition() {
 
         // When voice recognition produces a result
         recognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript.toLowerCase();
+            let transcript = event.results[0][0].transcript.toLowerCase();
+
+            // Handle ambiguous numbers
+            transcript = transcript.replace(/\bto\b/g, "two")
+                                   .replace(/\bfor\b/g, "four")
+                                   .replace(/\bon\b/g, "one");
+
             processOrder(transcript);
             stopVoiceRecognition(); // Stop recognition after processing
         };
@@ -67,6 +106,7 @@ function startVoiceRecognition() {
         isRecognitionActive = true; // Update the state
     }
 }
+
 
 function stopVoiceRecognition() {
     if (recognition) {
@@ -98,6 +138,7 @@ function updateChat(sender, message) {
 
 
 // Process the voice command for ordering and removing items
+// Improved processOrder function
 function processOrder(transcript) {
     const items = {
         "cappuccino": 50, 
@@ -138,7 +179,28 @@ function processOrder(transcript) {
     const orderRegex = new RegExp(`(\\b(?:${Object.keys(numberMap).join('|')}|\\d+)\\b)?\\s*(\\b${Object.keys(items).join('\\b|\\b')}\\b)`, 'gi');
     const orders = [...transcript.matchAll(orderRegex)];
 
-    // Greetings
+    // Improved normalization for numbers
+    function normalizeQuantity(quantityStr) {
+        const normalized = quantityStr.toLowerCase().trim();
+
+        // Direct match in numberMap
+        if (numberMap[normalized]) return numberMap[normalized];
+
+        // Check if it's a numeric string
+        const numericValue = parseInt(normalized);
+        if (!isNaN(numericValue)) return numericValue;
+
+        // Handle ambiguous cases
+        const ambiguousNumbers = {
+            "on": 1,
+            "to": 2,
+            "for": 4
+        };
+
+        return ambiguousNumbers[normalized] || 1; // Default to 1 if no match
+    }
+
+    // Handle greetings
     const greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"];
     if (greetings.some(greet => transcript.toLowerCase().includes(greet))) {
         updateChat('app', "Hello! Order something you like.");
@@ -156,11 +218,11 @@ function processOrder(transcript) {
         transcript.toLowerCase().includes("wrap it up") || 
         transcript.toLowerCase().includes("that's it")
     ) {
-        finalizeOrder();
+        finalizeOrder(); // Call finalize order function
         return;
     }
 
-    // Handle order cancellation
+    // Handle cancel order
     if (
         transcript.toLowerCase().includes("cancel the order") ||
         transcript.toLowerCase().includes("cancel order") ||
@@ -168,13 +230,8 @@ function processOrder(transcript) {
         transcript.toLowerCase().includes("clear the order") ||
         transcript.toLowerCase().includes("discard the order")
     ) {
-        clearOrder();
+        clearOrder(); // Trigger order cancellation
         updateChat('app', "All items have been removed from your order.");
-        
-        // Refresh the page after clearing the order
-        setTimeout(() => {
-            window.location.reload();  // This will reload the page after clearing the order
-        }, 500); // Adding a delay before refresh to ensure the order is cleared first
         return;
     }
 
@@ -184,7 +241,7 @@ function processOrder(transcript) {
         if (removeMatch) {
             const removeQtyStr = removeMatch[1] ? removeMatch[1].toLowerCase() : "one";
             const removeItem = removeMatch[2].toLowerCase();
-            const removeQuantity = isNaN(removeQtyStr) ? numberMap[removeQtyStr] : parseInt(removeQtyStr);
+            const removeQuantity = normalizeQuantity(removeQtyStr);
 
             removeItemFromOrder(removeItem, removeQuantity);
         } else {
@@ -199,11 +256,7 @@ function processOrder(transcript) {
             let quantityStr = order[1] ? order[1].toLowerCase() : "one";
             const item = order[2].toLowerCase();
 
-            // Normalize quantity
-            if (quantityStr === "for") quantityStr = "four";
-            if (quantityStr === "on") quantityStr = "one";
-            if (quantityStr === "to") quantityStr = "two";
-            const quantity = isNaN(quantityStr) ? numberMap[quantityStr] : parseInt(quantity);
+            const quantity = normalizeQuantity(quantityStr);
 
             if (items[item]) {
                 addToOrder(item, quantity, items[item]);
@@ -224,59 +277,57 @@ function processOrder(transcript) {
         const randomPrompt = additionalPrompts[Math.floor(Math.random() * additionalPrompts.length)];
         updateChat('app', randomPrompt);
     } else {
-        updateChat('app', "Oops, it's not available.");
+        updateChat('app', "Can you repeat again?");
     }
 }
 
-// Function to clear all items from the order
-// Track if the order is finalized
-let isOrderFinalized = false; // Default state, change when the order is finalized
+function clearOrder() {
+    const sessionId = getSessionId(); // Retrieve session ID stored during login or initialization
 
-function clearOrder(orderId) {
-    if (isOrderFinalized) {
-        // If the order is finalized, call the backend route to cancel it
-        if (!orderId) {
-            updateChat('app', "Order ID is required to clear the finalized order.");
-            return;
+    if (!sessionId) {
+        updateChat('app', "Session ID is required to cancel the order.");
+        return;
+    }
+
+    fetch('http://127.0.0.1:5000/cancel_order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ session_id: sessionId }) // Send session_id only
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Check if success is true
+        if (data.success) {
+            updateChat('app', "Your order has been canceled successfully.");
+            const orderItems = document.getElementById('order-items');
+            orderItems.innerHTML = ''; // Clear the UI
+            isOrderFinalized = false; // Reset the finalized state
+
+            // Clear the total amount
+            clearTotalAmount(); 
+
+            // Clear the QR code
+            clearQRCode();
+        } else {
+            // If error occurs or order status is not placed
+            updateChat('app', "Sorry, your order cannot be canceled. It is not in 'placed' status.");
         }
-
-        fetch('http://127.0.0.1:5000/cancel_order', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ order_id: orderId }) // Send the order ID in the request body
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Network error: ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.error) {
-                updateChat('app', `Error clearing finalized order: ${data.error}`);
-            } else {
-                updateChat('app', data.message); // Display success message
-                // Clear the order items in the UI
-                const orderItems = document.getElementById('order-items');
-                orderItems.innerHTML = ''; // Clear all rows from the order table
-                updateChat('app', "Your finalized order has been canceled successfully.");
-                isOrderFinalized = false; // Reset the finalized state
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            updateChat('app', "An error occurred while clearing the finalized order. Please try again.");
-        });
-    } else {
-        // If the order is not finalized, just clear the UI
-        const orderItems = document.getElementById('order-items');
-        orderItems.innerHTML = ''; // Clear all rows from the order table
-        updateChat('app', "Your order has been cleared.");
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        updateChat('app', "An error occurred while clearing the finalized order. Please try again.");
+    });
 }
 
+// Function to clear total amount from the UI
+function clearTotalAmount() {
+    const totalPriceContainer = document.getElementById('totalPrice');
+    
+    // Clear previous total amount
+    totalPriceContainer.innerHTML = "";
+}
 
 
 
@@ -365,8 +416,8 @@ function finalizeOrder() {
 
     // Check if total amount is 0
     if (totalAmount === 0) {
-        updateChat('app', "Please Order something!");
-        return; // Stop execution if no items have been ordered
+        updateChat('app', "Please order something!");
+        return;
     }
 
     fetch('http://127.0.0.1:5000/place_order', {
@@ -374,8 +425,12 @@ function finalizeOrder() {
         headers: { 
             'Content-Type': 'application/json' 
         },
-        body: JSON.stringify({ table_number: 1, items: orderItems })
-    }) 
+        body: JSON.stringify({
+            session_id: sessionId, // Include the session ID
+            table_number: 1,       // Replace with dynamic table number if needed
+            items: orderItems
+        })
+    })
     .then(response => {
         if (!response.ok) {
             throw new Error("Network response was not ok " + response.statusText);
@@ -385,16 +440,14 @@ function finalizeOrder() {
     .then(data => {
         updateChat('app', "Your order has been placed successfully!");
         console.log(data);
-        
-        // Display total amount (without QR code generation)
-        displayTotalAmount(totalAmount);
+        displayTotalAmount(totalAmount); // Update the UI with total amount
     })
     .catch(error => {
-        // Handle any network errors (but not QR generation errors)
         updateChat('app', "Sorry, there was an issue with your order.");
         console.error(error);
     });
 }
+
 
 
 // Display total amount without generating QR code
@@ -416,10 +469,12 @@ function displayTotalAmount(total) {
     generateQRCode(total);
 }
 
-function cancelOrder() {
-    const totalPriceContainer = document.getElementById('cancelOrder');
-}
 
+function clearQRCode() {
+    // Clear the QR code container
+    const qrContainer = document.getElementById("qrCodeContainer");
+    qrContainer.innerHTML = ""; // Clear any previously generated QR code
+}
 
 function generateQRCode(total) {
     const upiID = "9025370065@ybl"; // Replace with your UPI ID
@@ -449,3 +504,47 @@ function generateQRCode(total) {
         }
     });
 }
+
+function getSessionId() {
+    const sessionId = localStorage.getItem('session_id'); // Retrieve session ID from localStorage
+
+    if (!sessionId) {
+        // No session ID found, handle the scenario (e.g., create a new session or alert the user)
+        console.log("No session ID found. Please log in or create a session.");
+        // Optionally, you can generate a new session ID and store it
+        generateSessionId();
+        return null; // Return null if no session ID is found
+    }
+
+    // Session ID exists
+    console.log("Session ID found:", sessionId);
+    return sessionId;
+}
+
+// Example function to generate a new session ID
+function generateSessionId() {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`; // Timestamp + Random String
+}
+
+function initializeSession() {
+    // Clear the existing session_id to generate a new one
+    localStorage.removeItem('session_id');
+
+    // Generate a new session ID
+    const sessionId = generateSessionId();
+    localStorage.setItem('session_id', sessionId); // Store the new session ID
+    console.log("New session ID generated:", sessionId);
+    return sessionId;
+}
+
+const sessionId = initializeSession(); // Call this on page load
+
+
+document.getElementById('newOrderButton').addEventListener('click', function() {
+    // Optionally clear the session ID or any other stored data
+    localStorage.removeItem('session_id'); // Removes the current session_id from localStorage
+    sessionStorage.clear(); // Clears sessionStorage if used
+
+    // Refresh the page (this will reload the page and create a new session_id)
+    window.location.reload();
+});

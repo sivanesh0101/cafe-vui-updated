@@ -38,9 +38,9 @@ function displayOrders(orders, status) {
 
         let buttonHTML = '';
         if (status === 'placed') {
-            buttonHTML = `<button onclick="updateOrderStatus(${order.order_id}, 'picked')">Pick</button>`;
+            buttonHTML = `<div class="clickButton"><button onclick="updateOrderStatus(${order.order_id}, 'picked')">Pick</button></div>`;
         } else if (status === 'picked') {
-            buttonHTML = `<button onclick="updateOrderStatus(${order.order_id}, 'delivered')">Deliver</button>`;
+            buttonHTML = `<div class="clickButton"><button onclick="updateOrderStatus(${order.order_id}, 'delivered')">Deliver</button></div>`;
         }
 
         orderDiv.innerHTML = `<h3>Order ID: ${order.order_id}</h3>

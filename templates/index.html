@@ -27,7 +27,7 @@
 <body>
     <div class="topbar">
         <header>
-            <h1>kovai kulambi</h1>
+            <h1>Coffee shop</h1>
         </header>
     </div>    
         <div class="container">
@@ -131,6 +131,8 @@
             </section>
             
             <div class="order-section">
+
+                <div class="newOrder"><button id="newOrderButton">New Order</button></div>
                 <h2>Your Orders</h2>
                 <div class="order-summary">
                     <table>
@@ -147,10 +149,9 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="qrCodeContainer" id="qrCodeContainer">                    
-                </div>
-                <div class="cancelOrder" id="cancelOrder"></div>
-
+                
+                <div class="qrCodeContainer" id="qrCodeContainer"></div>
+                <div class="order-status" id="order-status"></div>
                 <div class="totalPrice" id="totalPrice"></div>
                 <div class="chatbox">
                     <div class="chat" id="chat">
@@ -182,6 +183,6 @@
             $('#send-message').click(function() {
                 socket.send('Hello from client!');
             });
-        </script>>
+        </script>
     </body>
 </html>
